@@ -1,0 +1,18 @@
+{
+  "name": "price/history",
+  "description": "Price history plugin",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "PriceHistory\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "PriceHistory\\PriceHistory",
+    "label": {
+      "de-DE": "Price History",
+      "en-GB": "Price History"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="PriceHistory\Core\Content\PriceHistory\PriceHistoryDefinition">
+            <tag name="shopware.entity.definition" entity="price_history" />
+        </service>
+
+        <service id="PriceHistory\Storefront\Controller\PriceHistoryController" public="true">
+<!--            <argument id="product.repository" type="service"/>-->
+            <argument id="price_history.repository" type="service"/>
+            <argument id="Shopware\Core\System\SystemConfig\SystemConfigService" type="service"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="PriceHistory\Storefront\Subscriber\PriceHistorySubscriber" public="true">
+<!--            <argument id="Shopware\Core\System\SystemConfig\SystemConfigService" type="service"/>-->
+            <argument id="price_history.repository" type="service"/>
+            <argument id="product.repository" type="service"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
+    </services>
+</container>
