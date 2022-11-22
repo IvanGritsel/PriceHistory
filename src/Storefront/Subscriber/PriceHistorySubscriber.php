@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -61,7 +60,6 @@ class PriceHistorySubscriber implements EventSubscriberInterface
                     [
                         'id' => Uuid::randomHex(),
                         'productId' => $currentId,
-//                        'changeDate' => date('Y-m-d'),
                         'oldPrice' => $lastHistoryItem ? $oldPrice : $currentPrice,
                         'newPrice' => $currentPrice,
                     ],

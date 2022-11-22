@@ -55,9 +55,6 @@ class PriceHistoryController extends AbstractController
                 'new' => $this->getGrossPrice($item->getNewPrice()),
             ];
         }
-//        if (empty($history)) {
-//            $history = ['This price never changed'];
-//        }
         return new JsonResponse($items);
     }
 
