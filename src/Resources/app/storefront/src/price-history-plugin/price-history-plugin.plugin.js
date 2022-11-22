@@ -25,8 +25,8 @@ export default class PriceHistoryPlugin extends Plugin {
         console.log(data);
         let historyData = JSON.parse(data);
         let html = '<ul>';
-        historyData.forEach(function (value, index) {
-            html += '<li>' + value.changeDate + ': ' + value.oldPrice + ' to '  + value.newPrice + '</li>'
+        Object.entries(historyData).forEach(([key, value]) => {
+            html += '<li>' + key + ': ' + value.old + ' to '  + value.new + '</li>'
         });
         html += '</ul>'
         this.textdiv.innerHTML = html;

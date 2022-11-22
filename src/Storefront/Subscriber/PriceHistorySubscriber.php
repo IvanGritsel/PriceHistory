@@ -6,6 +6,8 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -47,19 +49,19 @@ class PriceHistorySubscriber implements EventSubscriberInterface
             $productCriteria->addFilter(new EqualsFilter('id', $id));
             $product = $this->productRepository->search($productCriteria, $context)->first();
             $currentId = $product->getId();
-            $currentPrice = $product->getPrice();
+            $currentPrice = $this->collectionToArray($product->getPrice());
             $historyCriteria = new Criteria();
             $historyCriteria->addFilter(new EqualsFilter('productId', $currentId));
             $historyCriteria->addSorting(new FieldSorting('changeDate', 'DESC'));
             $historyCriteria->setLimit(1);
             $lastHistoryItem = $this->priceHistoryRepository->search($historyCriteria, $context)->first();
-            $oldPrice = $lastHistoryItem ? $lastHistoryItem->getNewPrice() : [];
+            $oldPrice = $lastHistoryItem ? $this->collectionToArray($lastHistoryItem->getNewPrice()) : [];
             if ($currentPrice !== $oldPrice) {
                 $this->priceHistoryRepository->create([
                     [
                         'id' => Uuid::randomHex(),
                         'productId' => $currentId,
-                        'changeDate' => date('Y-m-d'),
+//                        'changeDate' => date('Y-m-d'),
                         'oldPrice' => $lastHistoryItem ? $oldPrice : $currentPrice,
                         'newPrice' => $currentPrice,
                     ],
@@ -68,4 +70,17 @@ class PriceHistorySubscriber implements EventSubscriberInterface
         }
     }
 
+    private function collectionToArray(PriceCollection $collection): array
+    {
+        $result = [];
+        foreach ($collection as $element) {
+            $result[] = [
+                'currencyId' => $element->getCurrencyId(),
+                'gross' => $element->getGross(),
+                'net' => $element->getNet(),
+                'linked' => $element->getLinked(),
+            ];
+        }
+        return $result;
+    }
 }

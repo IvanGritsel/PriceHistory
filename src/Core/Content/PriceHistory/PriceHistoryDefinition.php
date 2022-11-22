@@ -35,9 +35,9 @@ class PriceHistoryDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
-            (new DateField('change_date', 'changeDate'))->addFlags(new Required()),
-            (new PriceField('new_price', 'oldPrice'))->addFlags(new Required()),
-            (new PriceField('old_price', 'newPrice'))->addFlags(new Required()),
+            new DateField('change_date', 'changeDate'),
+            (new PriceField('old_price', 'oldPrice'))->addFlags(new Required()),
+            (new PriceField('new_price', 'newPrice'))->addFlags(new Required()),
         ]);
     }
 }

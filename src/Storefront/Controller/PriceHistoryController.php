@@ -2,10 +2,13 @@
 
 namespace PriceHistory\Storefront\Controller;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,15 +38,32 @@ class PriceHistoryController extends AbstractController
     public function priceChange(string $productId, Context $context): JsonResponse
     {
         if (!$this->systemConfigService->get('PriceHistory.config.showInStorefront')) {
-            return new JsonResponse("Price history was disabled");
+            return new JsonResponse(["Price history was disabled"]);
         }
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addSorting(new FieldSorting('changeDate', 'DESC'));
         $criteria->setLimit(5);
-        $history = $this->priceHistoryRepository->search($criteria, $context);
+        $history = $this->priceHistoryRepository->search($criteria, $context)->getEntities();
+
+        $items = [];
+
+        foreach ($history as $item) {
+            $date = $item->getCreatedAt();
+            $items[date('Y-m-d H:i:s', $date->getTimestamp())] = [
+                'old' => $this->getGrossPrice($item->getOldPrice()),
+                'new' => $this->getGrossPrice($item->getNewPrice()),
+            ];
+        }
 //        if (empty($history)) {
 //            $history = ['This price never changed'];
 //        }
-        return new JsonResponse($history);
+        return new JsonResponse($items);
+    }
+
+    private function getGrossPrice(PriceCollection $collection): float
+    {
+        $price = $collection->get(Defaults::CURRENCY);
+        return $price->getGross();
     }
 }
